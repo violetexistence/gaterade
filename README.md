@@ -1,4 +1,6 @@
-![image info](./lucy_gaterade.jpg)
+// TODO: Update these when the code is written =)
+
+![image info](./lucy_gaterade2.png)
 
 # gaterade
 
@@ -15,23 +17,19 @@ At its core, 'gaterade' turns this...
 {
     "op": 10,
     "d": {
-        "hearbeat_interval": 41250,
-        "_trace": ["gateway-prd-main-XXX"]
-    },
-    "s": null,
-    "t": null
+        "hearbeat_interval": 41250
+    }
 }
 ```
 
-...into **beautifully types Gleam records** like this:
+...into **beautifully typed Gleam records** like this:
 
 ```gleam
-import gaterade.{GatewayMessage, OpCode, Hello}
-
-let msg: GatewayMessage = Hello(
-    hearbeat_interval: 41250,
-    trace: ["gateway-prd-main-XXX"]
-)
+type Hello {
+    Hello(
+        hearbeat_interval: Int
+    )
+}
 ```
 
 ## Features
@@ -47,7 +45,7 @@ let msg: GatewayMessage = Hello(
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/gaterade/)
 
 ```sh
-gleam add gaterade@1
+gleam add gaterade
 ```
 
 ```gleam
@@ -56,11 +54,12 @@ import gleam/json
 import gleam/result
 
 pub fn main() -> Nil {
-  let json_string = "{\"op\": 10, \"d\": { \"heartbeat_interval\": 45000}}"
-  let message = json.decode(json_string)
-  |> result.then(gaterade.decode_gateway_message)
-  case message {
-    discord.Hello(msg) -> echo "Hello, heartbeat interval is " <> { msg.hearbeat_interval |> int.to_string() }
+  let msg = "{\"op\": 10, \"d\": { \"heartbeat_interval\": 45000}}"
+  |> json.decode()
+  |> result.then(gaterade.decode(_))
+  
+  case msg {
+    Ok(Hello(heartbeat)) -> echo "Hello, heartbeat interval is " <> { hearbeat |> int.to_string() }
     _ -> echo "No one expects the " <> msg.message_type
   }
 }
